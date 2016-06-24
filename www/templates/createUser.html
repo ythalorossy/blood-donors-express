@@ -3,26 +3,40 @@
         <form id="createUser-form3" class="list ">
             <div class="spacer" style="height: 40px;"></div>
             <ion-list id="createUser-list5" class=" ">
-                <label class="item item-input " id="createUser-input3">
+								<label class="item item-input " id="createUser-firstName">
+										<span class="input-label">First Name</span>
+										<input type="text" placeholder="" ng-model="user.firstname">
+								</label>
+								<label class="item item-input " id="createUser-lastName">
+										<span class="input-label">Last Name</span>
+										<input type="text" placeholder="" ng-model="user.lastname">
+								</label>
+								<div class="spacer" style="height: 5px;"></div>
+
+                <label class="item item-input " id="createUser-username">
                     <span class="input-label">Username</span>
-                    <input type="text" placeholder="">
+                    <input type="text" placeholder="" autocapitalize="none" ng-model="user.username">
                 </label>
-                <label class="item item-input " id="createUser-input4">
+                <label class="item item-input " id="createUser-password">
                     <span class="input-label">Password</span>
-                    <input type="password" placeholder="">
+                    <input type="password" placeholder="" autocapitalize="none" ng-model="user.password">
                 </label>
-            </ion-list>
-            <label class="item item-select " id="createUser-select3">
-                <span class="input-label">Blood Group</span>
-                <select>
-                    <option>Group A</option>
-                    <option>Group B</option>
-                    <option>Group AB</option>
-                    <option>Group O</option>
-                </select>
-            </label>
-            <div class="spacer" style="height: 40px;"></div>
-            <a ui-sref="menu.home" id="createUser-button5" class=" button button-stable  button-block ">Create</a>
+								<div class="spacer" style="height: 5px;"></div>
+								<label class="item item-select " id="createUser-select3">
+									<span class="input-label">Blood Group</span>
+									<select ng-model="user.bloodGroup">
+										<option>Group A</option>
+										<option>Group B</option>
+										<option>Group AB</option>
+										<option>Group O</option>
+									</select>
+								</label>
+							</ion-list>
+
+						<div class="spacer" style="height: 5px;"></div>
+
+						<a id="createUser-btnRegister" class=" button button-stable  button-block " ng-click="register()">Create</a>
+
         </form>
     </ion-content>
 </ion-view>
