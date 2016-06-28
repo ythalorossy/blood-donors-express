@@ -7,7 +7,7 @@
 // 'starter.controllers' is found in controllers.js
 angular.module('app', ['ionic', 'ngResource', 'ngCordova', 'app.controllers', 'app.routes', 'app.services', 'app.directives'])
 
-.run(function($ionicPlatform, $rootScope, $cordovaGeolocation, GoogleMaps) {
+.run(function($ionicPlatform, $rootScope, $cordovaGeolocation, SettingsFactory, GoogleMaps) {
   $ionicPlatform.ready(function() {
     // Hide the accessory bar by default (remove this to show the accessory bar above the keyboard
     // for form inputs)
@@ -22,27 +22,33 @@ angular.module('app', ['ionic', 'ngResource', 'ngCordova', 'app.controllers', 'a
 
 		// Carrega a posição atual
 		// $cordovaGeolocation.getCurrentPosition({timeout: 10000, enableHighAccuracy: true})
-		// .then(function(position){
-		// 	console.log("|||||||||||||||||| currentPosition: " + position);
-		// 	$rootScope.currentPosition = position;
-		// },
-		// function(error){
-		// 	$rootScope.currentPosition = undefined;
-		// 	console.log("Could not get location");
-		// });
-		//
-		// var watchOptions = {
-		// 	timeout : 10000, // Default: 10s
-		// 	enableHighAccuracy: false // may cause errors if true
-		// };
-		//
-		// var watch = $cordovaGeolocation.watchPosition(watchOptions);
-		// watch.then(
-		// 	null,
-		// 	function(err) { },
-		// 	function(position) {
-		// 		$rootScope.currentPosition = position;
-		// });
+		// .then(
+		// 	function(position){
+		// 		console.log("APP: Getting location");
+		// 		SettingsFactory.setCurrentPosition(position);
+		// 		console.log('APP: Location got ' + position );
+		// 	},
+		// 	function(error){
+		// 		console.log("Could not get location");
+		// 	}
+		// );
+
+		$cordovaGeolocation.watchPosition({
+			timeout : 10000, // Default: 10s
+			enableHighAccuracy: false // may cause errors if true
+		})
+		.then(
+			null,
+			function(err) { },
+			function(position) {
+				SettingsFactory.setCurrentPosition({
+					coords: {
+						latitude: position.coords.latitude,
+						longitude: position.coords.longitude
+					}
+				});
+			}
+		);
 
   });
 })

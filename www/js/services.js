@@ -1,7 +1,27 @@
 angular.module('app.services', [])
 
 //.constant('URLBase', 'http://192.168.3.106:4000')
-.constant('URLBase', 'http://192.168.1.10:4000')
+//.constant('URLBase', 'http://192.168.1.10:4000')
+.constant('URLBase', 'https://blood-donors-express-ythalorossy.c9users.io')
+
+.factory('LocalStorage', function ($rootScope, $window) {
+
+	angular.element($window).on('storage', function (event) {
+			$rootScope.$apply();
+	});
+
+	return {
+		setData : function (key, data) {
+			$window.localStorage && $window.localStorage.setItem(key, JSON.stringify(data));
+		},
+		getData : function (key) {
+			return $window.localStorage && JSON.parse($window.localStorage.getItem(key));
+		},
+		clearData : function () {
+			$window.localStorage && $window.localStorage.clear();
+		}
+	}
+})
 
 .factory('AuthHttpRequestInterceptor', [function () {
 	return {
@@ -12,21 +32,18 @@ angular.module('app.services', [])
 	}
 }])
 
-.factory('SettingsFactory', ['$rootScope', '$cordovaGeolocation', function ($rootScope, $cordovaGeolocation) {
-
-	var api = {
+.factory('SettingsFactory', ['$rootScope', 'LocalStorage', '$cordovaGeolocation', function ($rootScope, LocalStorage, $cordovaGeolocation) {
+	return {
 		getCurrentPosition: function () {
-
-			console.log("|||||||||||||  ", $rootScope.currentPosition, " |||||||||||||||||||");
-
-			return $rootScope.currentPosition;
+			return LocalStorage.getData("Settings.currentPosition");
+		},
+		setCurrentPosition: function (position) {
+			LocalStorage.setData('Settings.currentPosition', position);
 		},
 		getDistance: function () {
 			return 3000;
 		}
-	}
-
-	return api;
+	};
 }])
 
 .factory('DonorsFactory', ['$resource', 'URLBase', function($resource, URLBase) {
@@ -57,39 +74,39 @@ angular.module('app.services', [])
 		return api;
 }])
 
-.factory('User', ['$rootScope', '$resource', '$http', 'URLBase', function ($rootScope, $resource, $http, URLBase) {
+.factory('User', function ($rootScope, $http, $q, URLBase, LocalStorage) {
 
-		var authFactory = {
+		var userFactory = {
 			authData : undefined
 		};
 
-		authFactory.setAuthData = function (data) {
-			this.authData = {
-				user: data.user,
-				token: data.token
-			};
-			$rootScope.$broadcast('authLoggedIn');
+		userFactory.setAuthData = function (data) {
+			var defer = $q.defer();
+			(function () {
+				LocalStorage.setData('user', data.user);
+				LocalStorage.setData('donor', data.donor);
+				LocalStorage.setData('token', data.token);
+				console.log("setted authdata");
+				defer.resolve();
+			})();
+
+			return defer.promise;
 		};
 
-		authFactory.getAuthData = function () {
-			return this.authData;
-		};
+		// userFactory.isAuthenticated = function () {
+		// 	return !angular.isUndefined(this.getAuthData());
+		// };
 
-		authFactory.isAuthenticated = function () {
-			return !angular.isUndefined(this.getAuthData());
-		};
-
-		authFactory.register = function (user) {
+		userFactory.register = function (user) {
 			return $http.post(URLBase + '/users/register', user);
 		};
 
-		authFactory.login = function (user) {
+		userFactory.login = function (user) {
 			return $http.post(URLBase + '/users/login', user);
 		};
 
-		authFactory.logout = function () {
+		userFactory.logout = function () {
 			var _self = this;
-			var _rootScope = $rootScope;
 
 			return $http.post(URLBase + '/users/logout')
 				.then(function (response) {
@@ -97,47 +114,31 @@ angular.module('app.services', [])
 				});
 		};
 
-		return authFactory;
-
-		// return $resource( URLBase + '/users/login', null, {
-		// 		'login' : { method : 'POST' }
-		// 	});
-}])
+		return userFactory;
+})
 
 .factory('GoogleMaps', function($rootScope, $cordovaGeolocation, SettingsFactory, DonorsFactory){
 
-	var apiKey = false;
   var map = null;
 
   function initMap() {
 
-    var options = {timeout: 10000, enableHighAccuracy: true};
+		var currentPostion = SettingsFactory.getCurrentPosition();
 
-		// Get the current position
-    $cordovaGeolocation.getCurrentPosition(options).then(function(position){
+		var latLng = new google.maps.LatLng(
+			currentPostion.coords.latitude,
+			currentPostion.coords.longitude);
 
-			console.log("||||||||||| LOADED POSITION ||||||||||||");
+		var mapOptions = {
+			center: latLng,
+			zoom: 12,
+			mapTypeId: google.maps.MapTypeId.ROADMAP
+		};
 
-      var latLng = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
+    map = new google.maps.Map(document.getElementById("map"), mapOptions);
 
-      var mapOptions = {
-        center: latLng,
-        zoom: 12,
-        mapTypeId: google.maps.MapTypeId.ROADMAP
-      };
-
-			console.log("||||||||||| CREATING MAP ||||||||||||");
-      map = new google.maps.Map(document.getElementById("map"), mapOptions);
-			console.log("|||||||||||  MAP CREATED ||||||||||||");
-      //Wait until the map is loaded
-      google.maps.event.addListenerOnce(map, 'idle', function(){
-				console.log("||||||||||| FIRING GOOGLE MAPS READY ||||||||||||");
-				$rootScope.$broadcast('$GoogleMapsReady');
-      });
-
-    }, function(error){
-			console.log("||||||||||| FIRING GOOGLE MAPS ERROR ||||||||||||");
-			$rootScope.$broadcast('$GoogleMapsError', error);
+    google.maps.event.addListenerOnce(map, 'idle', function() {
+			$rootScope.$broadcast('$GoogleMapsReady');
     });
 
   };
@@ -154,6 +155,6 @@ angular.module('app.services', [])
 		},
 		addMarkers: addMarkers
 	};
-});
+})
 
 ;

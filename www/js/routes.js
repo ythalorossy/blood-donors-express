@@ -12,20 +12,36 @@ angular.module('app.routes', [])
   // Set up the various states which the app can be in.
   // Each state's controller can be found in controllers.js
   $stateProvider
+
+		.state('menu', {
+			url: '/side-menu21',
+			templateUrl: 'templates/menu.html',
+			controller : function ($scope, $state, LocalStorage) {
+				$scope.logout = function () {
+					LocalStorage.clearData();
+					$state.go('login');
+				};
+			},
+			abstract:true
+		})
+
 	  .state('menu.home', {
+			cache: false,
 	    url: '/home',
 	    views: {
 	      'side-menu21': {
 	        templateUrl: 'templates/home.html',
 	        controller: 'homeCtrl'
 	      }
-	    }
-	  })
-
-	  .state('sequences', {
-	    url: '/page2',
-	    templateUrl: 'templates/sequences.html',
-	    controller: 'sequencesCtrl'
+	    },
+			resolve: {
+				user : ['LocalStorage', function (LocalStorage) {
+					return LocalStorage.getData('user');
+				}],
+				donor: ['LocalStorage', function (LocalStorage) {
+					return LocalStorage.getData('donor')
+				}]
+			}
 	  })
 
 	  .state('menu.settings', {
@@ -38,11 +54,6 @@ angular.module('app.routes', [])
 	    }
 	  })
 
-	  .state('menu', {
-	    url: '/side-menu21',
-	    templateUrl: 'templates/menu.html',
-	    abstract:true
-	  })
 
 	  .state('menu.mapOfDonors', {
 	    url: '/map/donors',

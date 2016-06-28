@@ -3,9 +3,9 @@
         <div class="list card " id="home-card22">
             <ion-item class="item-thumbnail-left  " id="home-list-item9">
                 <img src="img/CY1ka1g9Qhi6cg1o1857_10299136_650394668362881_7047276451530079508_n.jpg">
-                <h2>Ythalo Rossy</h2>
-                <p>Fortaleza, Ce, Brazil</p>
-								<p>{{token}}</p>
+                <h2>{{donor.firstname}} {{donor.lastname}}</h2>
+                <p>Blood group: <small> {{donor.bloodGroup}}</small></p>
+								<p>Last Donation: <small>{{donor.lastDonation}}</small> </p>
             </ion-item>
             <ion-item class="item-icon-left  " id="home-list-item11" ui-sref="menu.mapOfDonors">
                 <i class="icon ion-map"></i>Map of Donors
