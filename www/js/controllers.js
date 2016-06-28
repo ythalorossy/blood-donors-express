@@ -44,10 +44,6 @@ angular.module('app.controllers', [])
 		$state.go("menu.home");
 	}
 
-	$rootScope.$on('authLoggedIn', function () {
-		$state.go("menu.home");
-	});
-
 	$scope.login = function () {
 
 		User
