@@ -117,13 +117,13 @@ angular.module('app.services', [])
 		return userFactory;
 })
 
-.factory('GoogleMaps', function($rootScope, $cordovaGeolocation, SettingsFactory, DonorsFactory){
+.factory('GoogleMaps', function($rootScope, $cordovaGeolocation, LocalStorage, DonorsFactory){
 
   var map = null;
 
   function initMap() {
 
-		var currentPostion = SettingsFactory.getCurrentPosition();
+		var currentPostion = LocalStorage.getData('Settings.currentPosition');
 
 		var latLng = new google.maps.LatLng(
 			currentPostion.coords.latitude,
@@ -138,6 +138,16 @@ angular.module('app.services', [])
     map = new google.maps.Map(document.getElementById("map"), mapOptions);
 
     google.maps.event.addListenerOnce(map, 'idle', function() {
+
+			var donor = LocalStorage.getData('donor');
+			var donorMarker = new google.maps.Marker({
+				position: latLng,
+				title: donor.name,
+				label: donor.name
+			});
+
+			donorMarker.setMap(map);
+
 			$rootScope.$broadcast('$GoogleMapsReady');
     });
 

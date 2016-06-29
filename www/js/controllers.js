@@ -78,27 +78,25 @@ angular.module('app.controllers', [])
 
 		$scope.loadingMap = true;
 
-		console.log("||||||||||| REQUESTING GOOGLE MAPS INIT ||||||||||||");
+		var currentPostion = LocalStorage.getData('Settings.currentPosition');
+
 		GoogleMaps.init();
 
 		$scope.$on('$GoogleMapsReady', function () {
 			$scope.loadingMap = false;
-			console.log("||||||||||| RECEIVED GOOGLE MAPS READY ||||||||||||");
 			loadDonors();
 		});
 
 		$scope.$on('$GoogleMapsError', function () {
 			console.log("||||||||||| RECEIVED GOOGLE MAPS ERROR ||||||||||||");
-
 		});
-
 
 		function loadDonors() {
 
 			DonorsFactory
 			.getNear()
 			.query({
-				donorId: LocalStorage.getData('user').user._id,
+				donorId: LocalStorage.getData('donor')._id,
 				distance: SettingsFactory.getDistance()
 			})
 			.$promise
@@ -115,10 +113,11 @@ angular.module('app.controllers', [])
 					});
 
 					donorMarker.addListener('click', function () {
-						// map.setCenter(donorMarker.getPosition());
+
 						$state.go('menu.userDetail', {
 							"donorId" : donor._id
 						})
+
 					});
 
 					return donorMarker;
@@ -138,6 +137,7 @@ angular.module('app.controllers', [])
 	.get({'donorId': donorId})
 	.$promise
 	.then(function(donor) {
+		console.log(donor);
 			$scope.donor = donor;
 			$scope.enableToDonate = true;
 	});
