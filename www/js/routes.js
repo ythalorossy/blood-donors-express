@@ -54,13 +54,12 @@ angular.module('app.routes', [])
 	    }
 	  })
 
-
 	  .state('menu.mapOfDonors', {
 	    url: '/map/donors',
 	    views: {
 	      'side-menu21': {
 	        templateUrl: 'templates/mapOfDonors.html',
-	        controller: 'mapOfDonorsCtrl'
+	        controller: 'mapDonorCtrl'
 	      }
 	    }
 	  })
